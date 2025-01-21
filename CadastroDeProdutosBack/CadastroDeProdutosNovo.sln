@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34928.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManager", "OrderManager.csproj", "{EDB72BB0-E791-498A-93B9-7A81BCDB4004}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseApiProdutos", "..\DatabaseApiProdutos\DatabaseApiProdutos.csproj", "{62E02814-ED24-4784-87ED-9AED3793A3A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDB72BB0-E791-498A-93B9-7A81BCDB4004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDB72BB0-E791-498A-93B9-7A81BCDB4004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDB72BB0-E791-498A-93B9-7A81BCDB4004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDB72BB0-E791-498A-93B9-7A81BCDB4004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE579215-2ADE-4E09-9EAD-2A421F635921}
+	EndGlobalSection
+EndGlobal
