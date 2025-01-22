@@ -3,6 +3,7 @@ using Database.Domain;
 using Database.Repository;
 using FluentAssertions;
 using MediatR;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Xunit;
@@ -11,13 +12,14 @@ namespace OrderManagerUnityTeste
 {
     public class PedidoControllerTest
     {
-        private readonly Mock<IMediator> _mediatorMock;
-        private readonly PedidoController _controller;
+         Mock<IMediator> _mediatorMock;
+         PedidoController _controller;
+         Mock<IAntiforgery> _antiForgeryMock;
 
         public PedidoControllerTest()
         {
             _mediatorMock = new Mock<IMediator>();
-            _controller = new PedidoController(_mediatorMock.Object);
+            _controller = new PedidoController(_mediatorMock.Object, _antiForgeryMock.Object); // Passar IAntiforgery no construtor
         }
 
         [Fact]
@@ -26,10 +28,10 @@ namespace OrderManagerUnityTeste
             Iten iten = new Iten() { valor = 10, quantidade = 20 };
 
             Pedido pedido = new Pedido { nome = "Pedido Atualizado", itens = [iten] };            // Arrange
-            var command = new CreatePedidoCommand(pedido);
+            var command = new createPedidoCommand(pedido);
             var Pedido = new Pedido { nome = "Pedido Teste" };
             Pedido.setId(1);
-            _mediatorMock.Setup(x => x.Send(It.IsAny<CreatePedidoCommand>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(x => x.Send(It.IsAny<createPedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Pedido);
 
             // Act
@@ -49,8 +51,8 @@ namespace OrderManagerUnityTeste
 
             Pedido pedido = new Pedido { nome = "Pedido Atualizado", itens = [iten] };
             pedido.setId(id);
-            var command = new UpdatePedidoCommand(pedido);
-            _mediatorMock.Setup(x => x.Send(It.IsAny<UpdatePedidoCommand>(), It.IsAny<CancellationToken>()))
+            var command = new updatePedidoCommand(pedido);
+            _mediatorMock.Setup(x => x.Send(It.IsAny<updatePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Pedido)null);
 
             // Act
@@ -67,7 +69,7 @@ namespace OrderManagerUnityTeste
         {
             // Arrange
             var id = 1;
-            _mediatorMock.Setup(x => x.Send(It.IsAny<DeletePedidoCommand>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(x => x.Send(It.IsAny<deletePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
             // Act
@@ -82,7 +84,7 @@ namespace OrderManagerUnityTeste
         {
             // Arrange
             var id = 1;
-            _mediatorMock.Setup(x => x.Send(It.IsAny<DeletePedidoCommand>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(x => x.Send(It.IsAny<deletePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
 
             // Act
@@ -100,7 +102,7 @@ namespace OrderManagerUnityTeste
             var Pedido = new Pedido {  nome = "Pedido Teste" };
             Pedido.setId(id);
 
-            _mediatorMock.Setup(x => x.Send(It.IsAny<GetPedidoByIdQuery>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Pedido);
 
             // Act
@@ -116,7 +118,7 @@ namespace OrderManagerUnityTeste
         {
             // Arrange
             var id = 1;
-            _mediatorMock.Setup(x => x.Send(It.IsAny<GetPedidoByIdQuery>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Pedido)null);
 
             // Act
@@ -140,7 +142,7 @@ namespace OrderManagerUnityTeste
                 Pedido.setId(Pedidos.IndexOf(Pedido) + 1);
             }
 
-            _mediatorMock.Setup(x => x.Send(It.IsAny<GetAllPedidosQuery>(), It.IsAny<CancellationToken>()))
+            _mediatorMock.Setup(x => x.Send(It.IsAny<getAllPedidos>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Pedidos);
 
             // Act

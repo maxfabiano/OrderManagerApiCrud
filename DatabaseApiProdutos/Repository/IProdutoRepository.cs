@@ -6,10 +6,13 @@ namespace Repository;
 
 public interface IPedidoRepository
 {
-   Task<Pedido> Handle(CreatePedidoCommand request, CancellationToken cancellationToken);
-   Task<Pedido> Handle(UpdatePedidoCommand request, CancellationToken cancellationToken);
-   Task<bool> Handle(DeletePedidoCommand request, CancellationToken cancellationToken);
-   Task<Pedido> Handle(GetPedidoByIdQuery request, CancellationToken cancellationToken);
-   Task<IEnumerable<Pedido>> Handle(GetAllPedidosQuery request, CancellationToken cancellationToken);
+   Task<Pedido> Handle(createPedidoCommand comando, CancellationToken tokenCanceel);
+
+   Task<Pedido> Handle(updatePedidoCommand comando, CancellationToken tokenCanceel);
+
+   Task<bool> Handle(deletePedidoCommand comando, CancellationToken tokenCanceel);
+   Task<Pedido> Handle(getPdidoId comando, CancellationToken tokenCanceel);
+   Task<IEnumerable<Pedido>> Handle(getAllPedidos comando, CancellationToken tokenCanceel);
+
 
 }

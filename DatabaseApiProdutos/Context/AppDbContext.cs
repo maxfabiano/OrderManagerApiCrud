@@ -8,30 +8,29 @@ namespace Context
 {
     public class AppDbContexto
     {
-        private readonly string _connectionString;
-        private SqliteConnection _sqliteConnection;
 
+        string conexaostring;
+        SqliteConnection sqliteconection;
         public AppDbContexto(IConfiguration configuration)
         {
             try
             {
-                // Define o caminho do banco de dados local
-                var databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Banco.sqlite");
 
-                // Verifica se o banco já existe, caso contrário, cria um novo
-                if (!File.Exists(databasePath))
+                var caminhoBanco = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Banco.sqlite");
+                if (!File.Exists(caminhoBanco))
                 {
-                    File.WriteAllTextAsync(databasePath,"");
-                    Debug.WriteLine("Banco de dados SQLite criado em: " + databasePath);
+
+                    File.WriteAllTextAsync(caminhoBanco,"");
                 }
 
-                // Configura a string de conexão
-                _connectionString = $"Data Source={databasePath};Version=3;";
-                _sqliteConnection = new SqliteConnection(_connectionString);
+                conexaostring = $"Data Source={caminhoBanco};Version=3;";
+                sqliteconection = new SqliteConnection(conexaostring);
+
             }
             catch (Exception ex)
             {
-                throw new Exception($"Erro ao configurar o contexto do banco: {ex.Message}", ex);
+
+                throw new Exception(ex.Message);
             }
         }
 
@@ -39,15 +38,17 @@ namespace Context
         {
             try
             {
-                if (_sqliteConnection.State != System.Data.ConnectionState.Open)
+
+                if (sqliteconection.State != System.Data.ConnectionState.Open)
                 {
-                    _sqliteConnection.Open();
+
+                    sqliteconection.Open();
                 }
-                return _sqliteConnection;
+                return sqliteconection;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Erro ao abrir conexão: " + ex.Message);
+                throw new Exception(ex.Message);
                 throw;
             }
         }
@@ -56,21 +57,24 @@ namespace Context
         {
             try
             {
-                if (_sqliteConnection.State != System.Data.ConnectionState.Closed)
+                if (sqliteconection.State != System.Data.ConnectionState.Closed)
                 {
-                    _sqliteConnection.Close();
+                    sqliteconection.Close();
+
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Erro ao fechar conexão: " + ex.Message);
+
+                throw new Exception(ex.Message);
                 throw;
             }
         }
 
         public string GetConnectionString()
         {
-            return _connectionString;
+
+            return conexaostring;
         }
     }
 }

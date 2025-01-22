@@ -9,8 +9,10 @@ namespace Database.Domain
     public class Pedido
     {
         public int id { get; private set; }
+
         public string nome { get; set; }
         public string data { get; set; }
+
         public decimal valorTotal { get; private set; }
         public List<Iten> itens { get; set; }
 
@@ -26,9 +28,11 @@ namespace Database.Domain
     public class Iten
     {
         public int id { get;  private set; }
+
         public string nome { get; set; }
         public decimal valor { get; set; }
         public int quantidade { get; set; }
+
         public int PedidoId { get; private set; }
 
     }

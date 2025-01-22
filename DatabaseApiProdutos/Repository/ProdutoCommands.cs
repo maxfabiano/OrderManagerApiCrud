@@ -3,9 +3,9 @@ using MediatR;
 
 namespace Database.Repository
 {
-    public record CreatePedidoCommand(Pedido Pedido) : IRequest<Pedido>;
 
-    public record UpdatePedidoCommand(Pedido Pedido) : IRequest<Pedido>;
+    public record createPedidoCommand(Pedido Pedido) : IRequest<Pedido>;
 
-    public record DeletePedidoCommand(int id) : IRequest<bool>;
+    public record updatePedidoCommand(Pedido Pedido) : IRequest<Pedido>;
+    public record deletePedidoCommand(int id) : IRequest<bool>;
 }

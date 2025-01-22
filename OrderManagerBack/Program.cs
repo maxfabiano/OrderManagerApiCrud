@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Cadastro De Pedidos"
     });
 });
-builder.Services.AddMediatR(typeof(CreatePedidoCommand).Assembly);
+builder.Services.AddMediatR(typeof(createPedidoCommand).Assembly);
 SQLitePCL.Batteries.Init();
 
 var app = builder.Build();
