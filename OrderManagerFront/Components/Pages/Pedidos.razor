@@ -4,18 +4,18 @@
 @using System.Text.Json
 @using System.Text
 @using System.Net.Http
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Navigation
 
 <div class="container mt-4">
     <div class="row">
         <!-- Coluna do Formulário -->
         <div class="col-lg-4">
             <div class="card shadow-sm">
-
                 <div class="card-header text-white" style="background-color: #6495ED; font-weight: bold;">
                     Novo Pedido
                 </div>
                 <div class="card-body">
-
                     <form method="post" @onsubmit="Submit" @formname="starship-plain-form">
                         <AntiforgeryToken />
 
@@ -43,9 +43,7 @@
                         <button type="submit" class="btn btn-success w-100">Enviar</button>
                     </form>
                 </div>
-
             </div>
-
         </div>
 
         <!-- Coluna da Tabela -->
@@ -55,6 +53,10 @@
                     Pedidos
                 </div>
                 <div class="card-body">
+                    <div class="form-inline mb-3">
+                        <InputText id="filterNome" class="form-control mr-2" @onchange="ApplyFilters" @bind-Value="filterNome" placeholder="Filtrar por nome" />
+                        <InputDate id="filterData" class="form-control mr-2" @bind-Value="filterData" />
+                    </div>
                     <table class="table table-striped">
                         <thead class="thead-dark">
                             <tr>
@@ -72,7 +74,13 @@
                             @if (pedidos == null)
                             {
                                 <tr>
-                                    <td colspan="4" class="text-center"><em>Carregando...</em></td>
+                                    <td colspan="8" class="text-center"><em>Carregando...</em></td>
+                                </tr>
+                            }
+                            else if (!pedidos.Any())
+                            {
+                                <tr>
+                                    <td colspan="8" class="text-center"><em>Nenhum pedido encontrado</em></td>
                                 </tr>
                             }
                             else
@@ -88,7 +96,6 @@
                                         <td>@pedido.itens[0].nome</td>
                                         <td>@pedido.itens[0].quantidade</td>
                                         <td>@pedido.itens[0].valor</td>
-
                                     </tr>
                                 }
                             }
@@ -102,26 +109,45 @@
 
 @code {
     private PedidoRecebido[]? pedidos;
+    private string? filterNome;
+    private DateTime? filterData;
+
     [SupplyParameterFromForm]
     private Pedido? pedidoIten { get; set; }
     [SupplyParameterFromForm]
     private Iten? iten { get; set; }
-
     [SupplyParameterFromForm]
     private DateTime? dataInput { get; set; }
 
     private string url = "https://localhost:5001/orders";
-    private string antiforgeryToken="";
+    private string antiforgeryToken = "";
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadPedidos();
+    }
+
+    private async Task LoadPedidos()
+    {
         try
         {
-
             pedidoIten ??= new();
             iten ??= new();
-            var response = await Http.GetAsync(url);
+
+            var queryParams = new List<string>();
+            if (!string.IsNullOrEmpty(filterNome))
+            {
+                queryParams.Add($"nome={filterNome}");
+            }
+            if (filterData.HasValue)
+            {
+                queryParams.Add($"data={filterData.Value:yyyy-MM-dd}");
+            }
+
+            var fullUrl = url + (queryParams.Any() ? "?" + string.Join("&", queryParams) : "");
+            var response = await Http.GetAsync(fullUrl);
             response.EnsureSuccessStatusCode();
+
             pedidos = await response.Content.ReadFromJsonAsync<PedidoRecebido[]>();
 
             var responseT = await Http.GetFromJsonAsync<TokenResponse>("https://localhost:5001/orders/getToken");
@@ -129,19 +155,28 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching pedidos: {ex.Message}");
+            Console.WriteLine($"Erro ao carregar pedidos: {ex.Message}");
         }
     }
 
+    private async Task ApplyFilters()
+    {
+        await LoadPedidos();
+        RecarregarPagina();
+    }
+    private void RecarregarPagina()
+    {
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+    }
     protected async void Submit()
     {
         try
         {
             pedidoIten.itens = new List<Iten> { iten };
             pedidoIten.itens[0] = iten;
-			pedidoIten.data = dataInput?.ToString("dd-MM-yyyy");
-			Root root = new Root();
-			root.pedido = pedidoIten;
+            pedidoIten.data = dataInput?.ToString("dd-MM-yyyy");
+
+            Root root = new Root { pedido = pedidoIten };
             string jsonContent = System.Text.Json.JsonSerializer.Serialize(root);
 
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
@@ -149,26 +184,19 @@
             {
                 content.Headers.Add("X-CSRF-TOKEN", antiforgeryToken);
             }
-            var response = await Http.PostAsync("https://localhost:5001/orders", content);
 
+            var response = await Http.PostAsync(url, content);
             response.EnsureSuccessStatusCode();
 
-            var responseBody = await response.Content.ReadAsStringAsync();
+            // Recarregar tabela
+            await LoadPedidos();
 
-            // Atualiza a lista de pedidos
-            await OnInitializedAsync();
-
-            // Limpa o formulário após o envio
             pedidoIten = new Pedido { itens = new List<Iten> { new Iten() } };
-            StateHasChanged();
-
-            Console.WriteLine("Resposta do servidor:");
-            Console.WriteLine(responseBody);
+            RecarregarPagina();
         }
         catch (Exception ex)
         {
-            Console.WriteLine("Erro ao enviar o pedido:");
-            Console.WriteLine(ex.Message);
+            Console.WriteLine($"Erro ao enviar o pedido: {ex.Message}");
         }
     }
 
