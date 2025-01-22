@@ -3,6 +3,7 @@ using Database.Repository;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Antiforgery;
+using Database.Domain;
 
 [ApiController]
 [Route("orders")]
@@ -78,10 +79,25 @@ public class PedidoController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetPedidoById(int id)
+    public async Task<IActionResult> GetPedidoById(int id, string? nome=null, string? data = null)
     {
-        var pedido = await mediador.Send(new getPdidoId(id));
+        IEnumerable<Pedido> pedido;
 
+        if (nome != null) {
+            pedido = await mediador.Send(new getPedidoId(id,nome));
+            return Ok(pedido);
+
+        }
+        if (data != null)
+        {
+            pedido = await mediador.Send(new getPedidoId(id, data));
+            return Ok(pedido);
+
+        }
+        else
+        {
+            pedido = await mediador.Send(new getPedidoId(id));
+        }
         if (pedido == null)
         {
             return NotFound();

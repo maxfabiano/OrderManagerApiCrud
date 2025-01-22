@@ -15,7 +15,7 @@ namespace Database.Repository
 {
     public class PedidoRepository : IPedidoRepository, IRequestHandler<createPedidoCommand, Pedido>,
         IRequestHandler<updatePedidoCommand, Pedido>,
-        IRequestHandler<deletePedidoCommand, bool>, IRequestHandler<getPdidoId, Pedido>,
+        IRequestHandler<deletePedidoCommand, bool>, IRequestHandler<getPedidoId, IEnumerable<Pedido>>,
         IRequestHandler<getAllPedidos, IEnumerable<Pedido>>
     {
         string _stringConexao;
@@ -196,23 +196,49 @@ namespace Database.Repository
             }
         }
 
-        public async Task<Pedido> Handle(getPdidoId comando, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Pedido>> Handle(getPedidoId comando, CancellationToken cancellationToken)
         {
-            string PedidoSql = "SELECT * FROM Pedido WHERE id = @id";
-            string itensSql = "SELECT * FROM itens WHERE PedidoId = @PedidoId";
+            string pedidoSql = "SELECT * FROM Pedido";
+            string whereClause = " WHERE";
 
-            using (var connection = new SqliteConnection(_stringConexao)) {
-                var pedido = await connection.QuerySingleOrDefaultAsync<Pedido>(PedidoSql, new { id = comando.id });
-                    if (pedido != null)
-                    {
-                        var itens = await connection.QueryAsync<Iten>(itensSql, new { PedidoId = pedido.id });
-                        pedido.itens = itens.ToList();
-
-                    }
-
-                    return pedido;
-                }
+            if (comando.id != 0)
+            {
+                pedidoSql += whereClause + " id = @id";
+                whereClause = " AND";
             }
+            if (!string.IsNullOrEmpty(comando.nome))
+            {
+                pedidoSql += whereClause + " nome = @nome";
+                whereClause = " AND";
+            }
+            if (!string.IsNullOrEmpty(comando.data))
+            {
+                pedidoSql += whereClause + " data = @data";
+            }
+
+            string itensSql = "SELECT * FROM Itens WHERE PedidoId = @PedidoId";
+
+            using (var connection = new SqliteConnection(_stringConexao))
+            {
+                // Consulta a tabela Pedido
+                var pedidos = (await connection.QueryAsync<Pedido>(pedidoSql, new
+                {
+                    id = comando.id,
+                    nome = comando.nome,
+                    data = comando.data
+                })).ToList();
+
+                // Para cada pedido, buscar os itens associados
+                foreach (var pedido in pedidos)
+                {
+                    var itens = await connection.QueryAsync<Iten>(itensSql, new { PedidoId = pedido.id });
+                    pedido.itens = itens.ToList();
+                }
+
+                return pedidos;
+            }
+        }
+
         public async Task<IEnumerable<Pedido>> Handle(getAllPedidos comando, CancellationToken cancellationToken)
         {
             string PedidosSql = "SELECT * FROM Pedido";

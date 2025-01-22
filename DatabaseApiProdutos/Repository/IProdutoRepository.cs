@@ -11,7 +11,7 @@ public interface IPedidoRepository
    Task<Pedido> Handle(updatePedidoCommand comando, CancellationToken tokenCanceel);
 
    Task<bool> Handle(deletePedidoCommand comando, CancellationToken tokenCanceel);
-   Task<Pedido> Handle(getPdidoId comando, CancellationToken tokenCanceel);
+    Task<IEnumerable<Pedido>> Handle(getPedidoId comando, CancellationToken tokenCanceel);
    Task<IEnumerable<Pedido>> Handle(getAllPedidos comando, CancellationToken tokenCanceel);
 
 
