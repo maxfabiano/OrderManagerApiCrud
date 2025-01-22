@@ -202,19 +202,17 @@ namespace Database.Repository
             string itensSql = "SELECT * FROM itens WHERE PedidoId = @PedidoId";
 
             using (var connection = new SqliteConnection(_stringConexao)) {
-                var Pedido = await connection.QuerySingleOrDefaultAsync<Pedido>(PedidoSql, new { id = comando.id })){
-                    if (Pedido != null)
+                var pedido = await connection.QuerySingleOrDefaultAsync<Pedido>(PedidoSql, new { id = comando.id });
+                    if (pedido != null)
                     {
-                        var itens = await connection.QueryAsync<Iten>(itensSql, new { PedidoId = Pedido.id });
-                        Pedido.itens = itens.ToList();
+                        var itens = await connection.QueryAsync<Iten>(itensSql, new { PedidoId = pedido.id });
+                        pedido.itens = itens.ToList();
 
                     }
 
-                    return Pedido;
+                    return pedido;
                 }
             }
-        }
-
         public async Task<IEnumerable<Pedido>> Handle(getAllPedidos comando, CancellationToken cancellationToken)
         {
             string PedidosSql = "SELECT * FROM Pedido";

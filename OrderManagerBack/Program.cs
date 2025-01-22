@@ -16,10 +16,8 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Add Anti-Forgery service
 builder.Services.AddAntiforgery(options =>
 {
-    // Optional: Configure Anti-Forgery options here
 });
 
 builder.Services.AddSwaggerGen(c =>
@@ -47,7 +45,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     });
 }
 
-// Add Anti-Forgery middleware after UseRouting
 app.UseAntiforgery();
 
 app.UseHttpsRedirection();

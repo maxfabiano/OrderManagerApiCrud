@@ -20,7 +20,6 @@ public class PedidoController : ControllerBase
     [HttpGet("GetToken")]
     public IActionResult GetToken()
     {
-        // Gera o token antiforgery
         var tokens = tokenfor.GetAndStoreTokens(HttpContext);
         return Ok(new { Token = tokens.RequestToken });
     }
@@ -34,8 +33,8 @@ public class PedidoController : ControllerBase
             ValidarDados validarDados = new ValidarDados();
             validarDados.validarPedido(command.Pedido);
 
-            var Pedido = await mediador.Send(command);
-            return Ok(Pedido);
+            var pedidos = await mediador.Send(command);
+            return Ok(pedidos);
 
         }
         catch (Exception e)
@@ -54,12 +53,12 @@ public class PedidoController : ControllerBase
         validarDados.validarPedido(command.Pedido);
         command.Pedido.setId(id);
 
-        var Pedido = await mediador.Send(command);
+        var pedido = await mediador.Send(command);
 
-            if (Pedido == null) { 
+            if (pedido == null) { 
                 return NotFound();
             }
-        return Ok(Pedido);
+        return Ok(pedido);
         }
         catch (Exception e)
         {
@@ -81,20 +80,20 @@ public class PedidoController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPedidoById(int id)
     {
-        var Pedido = await mediador.Send(new getPdidoId(id));
+        var pedido = await mediador.Send(new getPdidoId(id));
 
-        if (Pedido == null)
+        if (pedido == null)
         {
             return NotFound();
         }
-        return Ok(Pedido);
+        return Ok(pedido);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllPedidos()
     {
-        var Pedidos = await mediador.Send(new getAllPedidos());
+        var pedidos = await mediador.Send(new getAllPedidos());
 
-        return Ok(Pedidos);
+        return Ok(pedidos);
     }
 }

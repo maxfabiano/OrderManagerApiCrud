@@ -13,144 +13,123 @@ namespace OrderManagerUnityTeste
     public class PedidoControllerTest
     {
          Mock<IMediator> _mediatorMock;
-         PedidoController _controller;
-         Mock<IAntiforgery> _antiForgeryMock;
+         PedidoController pedidoAi;
+         Mock<IAntiforgery> antFo;
 
         public PedidoControllerTest()
         {
             _mediatorMock = new Mock<IMediator>();
-            _controller = new PedidoController(_mediatorMock.Object, _antiForgeryMock.Object); // Passar IAntiforgery no construtor
+            pedidoAi = new PedidoController(_mediatorMock.Object, antFo.Object); 
         }
 
         [Fact]
-        public async Task CreatePedido_ShouldReturnOk_WhenCommandIsValid()
+        public async Task criarPedidoComandoValido()
         {
             Iten iten = new Iten() { valor = 10, quantidade = 20 };
 
-            Pedido pedido = new Pedido { nome = "Pedido Atualizado", itens = [iten] };            // Arrange
+            Pedido pedido = new Pedido();
+            pedido.nome = "Pedido Teste";
+            pedido.itens = [iten];
             var command = new createPedidoCommand(pedido);
             var Pedido = new Pedido { nome = "Pedido Teste" };
             Pedido.setId(1);
             _mediatorMock.Setup(x => x.Send(It.IsAny<createPedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Pedido);
+            var result = await pedidoAi.CreatePedido(command);
 
-            // Act
-            var result = await _controller.CreatePedido(command);
-
-            // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(Pedido, okResult.Value);
         }
 
         [Fact]
-        public async Task UpdatePedido_ShouldReturnNotFound_WhenPedidoNaoEncontrado()
+        public async Task atualizarPedidoComandoInvalido()
         {
-            // Arrange
             var id = 1;
-            Iten iten = new Iten() { valor = 10, quantidade = 20};
+            Iten iten = new Iten();
+            iten.valor = 10;
+            iten.quantidade = 20;
 
-            Pedido pedido = new Pedido { nome = "Pedido Atualizado", itens = [iten] };
+            Pedido pedido = new Pedido();
+            pedido.nome = "Pedido Atualizado";
+            pedido.itens = [iten];
             pedido.setId(id);
             var command = new updatePedidoCommand(pedido);
             _mediatorMock.Setup(x => x.Send(It.IsAny<updatePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Pedido)null);
 
-            // Act
-            var result = await _controller.UpdatePedido(id, command);
+            var result = await pedidoAi.UpdatePedido(id, command);
 
-            // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
         
 
         [Fact]
-        public async Task DeletePedido_ShouldReturnNoContent_WhenSuccess()
+        public async Task deletarPedidoComandoValido()
         {
-            // Arrange
             var id = 1;
             _mediatorMock.Setup(x => x.Send(It.IsAny<deletePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            // Act
-            var result = await _controller.DeletePedido(id);
-
-            // Assert
+            var result = await pedidoAi.DeletePedido(id);
             Assert.IsType<NoContentResult>(result);
         }
 
         [Fact]
-        public async Task DeletePedido_ShouldReturnNotFound_WhenPedidoNaoEncontrado()
+        public async Task DeletarPedidoComandoInvalido()
         {
-            // Arrange
             var id = 1;
             _mediatorMock.Setup(x => x.Send(It.IsAny<deletePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
+            var result = await pedidoAi.DeletePedido(id);
 
-            // Act
-            var result = await _controller.DeletePedido(id);
-
-            // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task GetPedidoById_ShouldReturnOk_WhenPedidoEncontrado()
+        public async Task pegarPedidoInvalido()
         {
-            // Arrange
             var id = 1;
-            var Pedido = new Pedido {  nome = "Pedido Teste" };
-            Pedido.setId(id);
+            var pedido = new Pedido ();
+            pedido.nome ="Pedido Teste";
+            pedido.setId(id);
 
             _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Pedido);
+                .ReturnsAsync(pedido);
 
-            // Act
-            var result = await _controller.GetPedidoById(id);
-
-            // Assert
+            var result = await pedidoAi.GetPedidoById(id);
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(Pedido, okResult.Value);
+            Assert.Equal(pedido, okResult.Value);
         }
 
         [Fact]
-        public async Task GetPedidoById_ShouldReturnNotFound_WhenPedidoNaoEncontrado()
+        public async Task pegarPedidoIdInvalido()
         {
-            // Arrange
             var id = 1;
             _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Pedido)null);
 
-            // Act
-            var result = await _controller.GetPedidoById(id);
+            var result = await pedidoAi.GetPedidoById(id);
 
-            // Assert
             Assert.IsType<NotFoundResult>(result);
         }
 
         [Fact]
-        public async Task GetAllPedidos_ShouldReturnOk()
+        public async Task pegarTodosPedidosInvalido()
         {
-            // Arrange
-            var Pedidos = new List<Pedido>
+            var pedidos = new List<Pedido>();
+            pedidos.Add(new Pedido { nome = "Pedido Teste" });
+            pedidos.Add(new Pedido { nome = "Pedido Teste 2" });
+            foreach (var pedido in pedidos)
             {
-                new Pedido {  nome = "Pedido 1" },
-                new Pedido { nome = "Pedido 2" }
-            };
-            foreach (var Pedido in Pedidos)
-            {
-                Pedido.setId(Pedidos.IndexOf(Pedido) + 1);
+                pedido.setId(pedidos.IndexOf(pedido) + 1);
             }
 
             _mediatorMock.Setup(x => x.Send(It.IsAny<getAllPedidos>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Pedidos);
-
-            // Act
-            var result = await _controller.GetAllPedidos();
-
-            // Assert
+                .ReturnsAsync(pedidos);
+            var result = await pedidoAi.GetAllPedidos();
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(Pedidos, okResult.Value);
+            Assert.Equal(pedidos, okResult.Value);
         }
     }
 }

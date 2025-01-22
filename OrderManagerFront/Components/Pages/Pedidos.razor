@@ -58,9 +58,14 @@
                     <table class="table table-striped">
                         <thead class="thead-dark">
                             <tr>
-                                <th>Data</th>
-
+                                <th>Id</th>
                                 <th>Nome</th>
+                                <th>Data</th>
+                                <th>Valor Total</th>
+                                <th>Item Id</th>
+                                <th>Item Nome</th>
+                                <th>Item Quantidade</th>
+                                <th>Item Valor</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,10 +80,15 @@
                                 @foreach (var pedido in pedidos)
                                 {
                                     <tr>
-
-                                        <td>@pedido.data</td>
-
+                                        <td>@pedido.id</td>
                                         <td>@pedido.nome</td>
+                                        <td>@pedido.data</td>
+                                        <td>@pedido.valorTotal</td>
+                                        <td>@pedido.itens[0].id</td>
+                                        <td>@pedido.itens[0].nome</td>
+                                        <td>@pedido.itens[0].quantidade</td>
+                                        <td>@pedido.itens[0].valor</td>
+
                                     </tr>
                                 }
                             }
@@ -91,7 +101,7 @@
 </div>
 
 @code {
-    private Pedido[]? pedidos;
+    private PedidoRecebido[]? pedidos;
     [SupplyParameterFromForm]
     private Pedido? pedidoIten { get; set; }
     [SupplyParameterFromForm]
@@ -112,7 +122,7 @@
             iten ??= new();
             var response = await Http.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            pedidos = await response.Content.ReadFromJsonAsync<Pedido[]>();
+            pedidos = await response.Content.ReadFromJsonAsync<PedidoRecebido[]>();
 
             var responseT = await Http.GetFromJsonAsync<TokenResponse>("https://localhost:5001/orders/getToken");
             antiforgeryToken = responseT?.Token;
@@ -140,16 +150,24 @@
                 content.Headers.Add("X-CSRF-TOKEN", antiforgeryToken);
             }
             var response = await Http.PostAsync("https://localhost:5001/orders", content);
+
             response.EnsureSuccessStatusCode();
+
             var responseBody = await response.Content.ReadAsStringAsync();
 
+            // Atualiza a lista de pedidos
             await OnInitializedAsync();
+
+            // Limpa o formulário após o envio
             pedidoIten = new Pedido { itens = new List<Iten> { new Iten() } };
             StateHasChanged();
 
+            Console.WriteLine("Resposta do servidor:");
+            Console.WriteLine(responseBody);
         }
         catch (Exception ex)
         {
+            Console.WriteLine("Erro ao enviar o pedido:");
             Console.WriteLine(ex.Message);
         }
     }
@@ -158,18 +176,36 @@
     {
         public string nome { get; set; }
         public int valor { get; set; }
-
         public int quantidade { get; set; }
     }
 
+    public class PedidoRecebido
+    {
+        public int id { get;  set; }
+
+        public string nome { get; set; }
+        public string data { get; set; }
+
+        public decimal valorTotal { get; set; }
+        public List<ItenRecebido> itens { get; set; }
+    }
     public class Pedido
     {
         public string nome { get; set; }
-
         public string data { get; set; }
         public List<Iten> itens { get; set; }
     }
+    public class ItenRecebido
+    {
+        public int id { get;  set; }
 
+        public string nome { get; set; }
+        public decimal valor { get; set; }
+        public int quantidade { get; set; }
+
+        public int PedidoId { get; set; }
+
+    }
     public class Root
     {
         public Pedido pedido { get; set; }
