@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManager", "OrderManage
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DatabaseApiProdutos", "..\DatabaseApiProdutos\DatabaseApiProdutos.csproj", "{62E02814-ED24-4784-87ED-9AED3793A3A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManagerUnityTeste", "..\OrderManagerUnityTeste\OrderManagerUnityTeste.csproj", "{762AF20C-E3E3-4227-B929-FF5DADAB421C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderManagerFront", "..\OrderManagerFront\OrderManagerFront.csproj", "{CC0F847B-DEA4-430A-B166-CF70244A03B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62E02814-ED24-4784-87ED-9AED3793A3A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{762AF20C-E3E3-4227-B929-FF5DADAB421C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{762AF20C-E3E3-4227-B929-FF5DADAB421C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{762AF20C-E3E3-4227-B929-FF5DADAB421C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{762AF20C-E3E3-4227-B929-FF5DADAB421C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC0F847B-DEA4-430A-B166-CF70244A03B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC0F847B-DEA4-430A-B166-CF70244A03B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC0F847B-DEA4-430A-B166-CF70244A03B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC0F847B-DEA4-430A-B166-CF70244A03B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

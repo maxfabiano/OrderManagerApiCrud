@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Database.Domain
 {
-    public class Produto
+    public class Pedido
     {
         public int id { get; private set; }
         public string nome { get; set; }
@@ -29,7 +29,7 @@ namespace Database.Domain
         public string nome { get; set; }
         public decimal valor { get; set; }
         public int quantidade { get; set; }
-        public int produtoId { get; private set; }
+        public int PedidoId { get; private set; }
 
     }
 

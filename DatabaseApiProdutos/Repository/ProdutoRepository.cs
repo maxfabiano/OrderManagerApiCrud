@@ -13,35 +13,36 @@ using Repository;
 
 namespace Database.Repository
 {
-    public class ProdutoRepository : IProdutoRepository,
-        IRequestHandler<CreateProdutoCommand, Produto>,
-        IRequestHandler<UpdateProdutoCommand, Produto>,
-        IRequestHandler<DeleteProdutoCommand, bool>,
-        IRequestHandler<GetProdutoByIdQuery, Produto>,
-        IRequestHandler<GetAllProdutosQuery, IEnumerable<Produto>>
+    public class PedidoRepository : IPedidoRepository,
+        IRequestHandler<CreatePedidoCommand, Pedido>,
+        IRequestHandler<UpdatePedidoCommand, Pedido>,
+        IRequestHandler<DeletePedidoCommand, bool>,
+        IRequestHandler<GetPedidoByIdQuery, Pedido>,
+        IRequestHandler<GetAllPedidosQuery, IEnumerable<Pedido>>
     {
         private readonly string _connectionString;
 
-        public ProdutoRepository(IConfiguration configuration)
+        public PedidoRepository(IConfiguration configuration)
         {
             var databasePath = Path.Combine(Directory.GetCurrentDirectory(), "Banco.sqlite");
-
+           
             if (!File.Exists(databasePath))
             {
                 File.WriteAllTextAsync(databasePath, "");
-                CreatedatabaseSchema();
+                
             }
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            _connectionString = $"data Source={databasePath};";
+            CreatedatabaseSchemaAsync();
         }
 
-        private void CreatedatabaseSchema()
+        private async Task CreatedatabaseSchemaAsync()
         {
             using var connection = new SqliteConnection(_connectionString);
             connection.Open();
 
             const string schema = @"
-                CREATE TABLE IF NOT EXISTS Produto (
+                CREATE TABLE IF NOT EXISTS Pedido (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     nome TEXT NOT NULL,
                     data TEXT NOT NULL,
@@ -53,26 +54,32 @@ namespace Database.Repository
                     nome TEXT NOT NULL,
                     valor REAL NOT NULL,
                     quantidade INTEGER NOT NULL,
-                    produtoId INTEGER NOT NULL,
-                    FOREIGN KEY (produtoId) REFERENCES Produto (Id) ON DELETE CASCADE
+                    PedidoId INTEGER NOT NULL,
+                    FOREIGN KEY (PedidoId) REFERENCES Pedido (id) ON DELETE CASCADE
                 );
             ";
-
-            connection.Execute(schema);
+            try { 
+                var result = await connection.ExecuteAsync(schema); 
+            
+            }
+            catch (Exception ex){
+                throw new Exception(ex.Message);
+            
+            }
         }
 
         #region Handlers
 
-        public async Task<Produto> Handle(CreateProdutoCommand request, CancellationToken cancellationToken)
+        public async Task<Pedido> Handle(CreatePedidoCommand request, CancellationToken cancellationToken)
         {
-            const string produtoSql = @"
-                INSERT INTO Produto (nome, data, valorTotal) 
+            const string PedidoSql = @"
+                INSERT INTO Pedido (nome, data, valorTotal) 
                 VALUES (@nome, @data, @valorTotal);
                 SELECT last_insert_rowid();";
 
             const string itensSql = @"
-                INSERT INTO itens (nome, valor, quantidade, produtoId) 
-                VALUES (@nome, @valor, @quantidade, @produtoId);";
+                INSERT INTO itens (nome, valor, quantidade, PedidoId) 
+                VALUES (@nome, @valor, @quantidade, @PedidoId);";
 
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync(cancellationToken);
@@ -80,30 +87,30 @@ namespace Database.Repository
             using var transaction = connection.BeginTransaction();
             try
             {
-                var idProduto = await connection.QuerySingleAsync<int>(produtoSql, new
+                var idPedido = await connection.QuerySingleAsync<int>(PedidoSql, new
                 {
-                    request.produto.nome,
-                    request.produto.data,
-                    request.produto.valorTotal
+                    request.Pedido.nome,
+                    request.Pedido.data,
+                    request.Pedido.valorTotal
                 }, transaction);
 
-                foreach (var item in request.produto.itens)
+                foreach (var item in request.Pedido.itens)
                 {
                     await connection.ExecuteAsync(itensSql, new
                     {
                         item.nome,
                         item.valor,
                         item.quantidade,
-                        produtoId = idProduto
+                        PedidoId = idPedido
                     }, transaction);
                 }
 
                 transaction.Commit();
-                return new Produto
+                return new Pedido
                 {
-                    nome = request.produto.nome,
-                    data = request.produto.data,
-                    itens = request.produto.itens
+                    nome = request.Pedido.nome,
+                    data = request.Pedido.data,
+                    itens = request.Pedido.itens
                 };
             }
             catch
@@ -113,18 +120,18 @@ namespace Database.Repository
             }
         }
 
-        public async Task<Produto> Handle(UpdateProdutoCommand request, CancellationToken cancellationToken)
+        public async Task<Pedido> Handle(UpdatePedidoCommand request, CancellationToken cancellationToken)
         {
-            const string produtoSql = @"
-                UPDATE Produto 
+            const string PedidoSql = @"
+                UPDATE Pedido 
                 SET nome = @nome, data = @data, valorTotal = @valorTotal
                 WHERE id = @id";
 
-            const string deleteitensSql = "DELETE FROM itens WHERE produtoId = @produtoId";
+            const string deleteitensSql = "DELETE FROM itens WHERE PedidoId = @PedidoId";
 
             const string itensSql = @"
-                INSERT INTO itens (nome, valor, quantidade, produtoId) 
-                VALUES (@nome, @valor, @quantidade, @produtoId);";
+                INSERT INTO itens (nome, valor, quantidade, PedidoId) 
+                VALUES (@nome, @valor, @quantidade, @PedidoId);";
 
             using var connection = new SqliteConnection(_connectionString);
             await connection.OpenAsync(cancellationToken);
@@ -132,35 +139,35 @@ namespace Database.Repository
             using var transaction = connection.BeginTransaction();
             try
             {
-                var rowsAffected = await connection.ExecuteAsync(produtoSql, new
+                var rowsAffected = await connection.ExecuteAsync(PedidoSql, new
                 {
-                    request.produto.nome,
-                    request.produto.data,
-                    request.produto.valorTotal,
-                    id = request.produto.id
+                    request.Pedido.nome,
+                    request.Pedido.data,
+                    request.Pedido.valorTotal,
+                    id = request.Pedido.id
                 }, transaction);
 
                 if (rowsAffected == 0) return null;
 
-                await connection.ExecuteAsync(deleteitensSql, new { produtoId = request.produto.id }, transaction);
+                await connection.ExecuteAsync(deleteitensSql, new { PedidoId = request.Pedido.id }, transaction);
 
-                foreach (var item in request.produto.itens)
+                foreach (var item in request.Pedido.itens)
                 {
                     await connection.ExecuteAsync(itensSql, new
                     {
                         item.nome,
                         item.valor,
                         item.quantidade,
-                        produtoId = request.produto.id
+                        PedidoId = request.Pedido.id
                     }, transaction);
                 }
 
                 transaction.Commit();
-                return new Produto
+                return new Pedido
                 {
-                    nome = request.produto.nome,
-                    data = request.produto.data,
-                    itens = request.produto.itens
+                    nome = request.Pedido.nome,
+                    data = request.Pedido.data,
+                    itens = request.Pedido.itens
                 };
             }
             catch
@@ -170,48 +177,48 @@ namespace Database.Repository
             }
         }
 
-        public async Task<bool> Handle(DeleteProdutoCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeletePedidoCommand request, CancellationToken cancellationToken)
         {
-            const string sql = "DELETE FROM Produto WHERE id = @id";
+            const string sql = "DELETE FROM Pedido WHERE id = @id";
 
             using var connection = new SqliteConnection(_connectionString);
             var rowsAffected = await connection.ExecuteAsync(sql, new { request.id });
             return rowsAffected > 0;
         }
 
-        public async Task<Produto> Handle(GetProdutoByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Pedido> Handle(GetPedidoByIdQuery request, CancellationToken cancellationToken)
         {
-            const string produtoSql = "SELECT * FROM Produto WHERE id = @id";
-            const string itensSql = "SELECT * FROM itens WHERE produtoId = @produtoId";
+            const string PedidoSql = "SELECT * FROM Pedido WHERE id = @id";
+            const string itensSql = "SELECT * FROM itens WHERE PedidoId = @PedidoId";
 
             using var connection = new SqliteConnection(_connectionString);
 
-            var produto = await connection.QuerySingleOrDefaultAsync<Produto>(produtoSql, new { id = request.id });
-            if (produto != null)
+            var Pedido = await connection.QuerySingleOrDefaultAsync<Pedido>(PedidoSql, new { id = request.id });
+            if (Pedido != null)
             {
-                var itens = await connection.QueryAsync<Iten>(itensSql, new { produtoId = produto.id });
-                produto.itens = itens.ToList();
+                var itens = await connection.QueryAsync<Iten>(itensSql, new { PedidoId = Pedido.id });
+                Pedido.itens = itens.ToList();
             }
 
-            return produto;
+            return Pedido;
         }
 
-        public async Task<IEnumerable<Produto>> Handle(GetAllProdutosQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Pedido>> Handle(GetAllPedidosQuery request, CancellationToken cancellationToken)
         {
-            const string produtosSql = "SELECT * FROM Produto";
-            const string itensSql = "SELECT * FROM itens WHERE produtoId = @produtoId";
+            const string PedidosSql = "SELECT * FROM Pedido";
+            const string itensSql = "SELECT * FROM itens WHERE PedidoId = @PedidoId";
 
             using var connection = new SqliteConnection(_connectionString);
 
-            var produtos = await connection.QueryAsync<Produto>(produtosSql);
+            var Pedidos = await connection.QueryAsync<Pedido>(PedidosSql);
 
-            foreach (var produto in produtos)
+            foreach (var Pedido in Pedidos)
             {
-                var itens = await connection.QueryAsync<Iten>(itensSql, new { produtoId = produto.id });
-                produto.itens = itens.ToList();
+                var itens = await connection.QueryAsync<Iten>(itensSql, new { PedidoId = Pedido.id });
+                Pedido.itens = itens.ToList();
             }
 
-            return produtos;
+            return Pedidos;
         }
 
         #endregion

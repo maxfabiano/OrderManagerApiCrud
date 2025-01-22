@@ -7,6 +7,7 @@ using Repository;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Database.Repository;
+using Microsoft.AspNetCore.Antiforgery;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,16 +16,22 @@ builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnC
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// Add Anti-Forgery service
+builder.Services.AddAntiforgery(options =>
+{
+    // Optional: Configure Anti-Forgery options here
+});
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
         Title = "Ecomerce",
-        Description = "Cadastro De Produtos"
+        Description = "Cadastro De Pedidos"
     });
 });
-builder.Services.AddMediatR(typeof(CreateProdutoCommand).Assembly);
+builder.Services.AddMediatR(typeof(CreatePedidoCommand).Assembly);
 SQLitePCL.Batteries.Init();
 
 var app = builder.Build();
@@ -35,10 +42,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cadastro De Produtos");
-        c.RoutePrefix = string.Empty; 
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cadastro De Pedidos");
+        c.RoutePrefix = string.Empty;
     });
 }
+
+// Add Anti-Forgery middleware after UseRouting
+app.UseAntiforgery();
 
 app.UseHttpsRedirection();
 

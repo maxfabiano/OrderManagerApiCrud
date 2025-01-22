@@ -4,12 +4,12 @@ using MediatR;
 
 namespace Repository;
 
-public interface IProdutoRepository
+public interface IPedidoRepository
 {
-   Task<Produto> Handle(CreateProdutoCommand request, CancellationToken cancellationToken);
-   Task<Produto> Handle(UpdateProdutoCommand request, CancellationToken cancellationToken);
-   Task<bool> Handle(DeleteProdutoCommand request, CancellationToken cancellationToken);
-   Task<Produto> Handle(GetProdutoByIdQuery request, CancellationToken cancellationToken);
-   Task<IEnumerable<Produto>> Handle(GetAllProdutosQuery request, CancellationToken cancellationToken);
+   Task<Pedido> Handle(CreatePedidoCommand request, CancellationToken cancellationToken);
+   Task<Pedido> Handle(UpdatePedidoCommand request, CancellationToken cancellationToken);
+   Task<bool> Handle(DeletePedidoCommand request, CancellationToken cancellationToken);
+   Task<Pedido> Handle(GetPedidoByIdQuery request, CancellationToken cancellationToken);
+   Task<IEnumerable<Pedido>> Handle(GetAllPedidosQuery request, CancellationToken cancellationToken);
 
 }

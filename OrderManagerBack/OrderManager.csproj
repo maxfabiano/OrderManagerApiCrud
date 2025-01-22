@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatabaseApiProdutos\DatabaseApiProdutos.csproj" />
+    <ProjectReference Include="..\OrderManagerFront\OrderManagerFront.csproj" />
   </ItemGroup>
 
   <ItemGroup>

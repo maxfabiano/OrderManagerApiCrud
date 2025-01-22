@@ -1,0 +1,178 @@
+﻿@page "/"
+@inject HttpClient Http
+@using System.Diagnostics
+@using System.Text.Json
+@using System.Text
+@using System.Net.Http
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Coluna do Formulário -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header text-white" style="background-color: #6495ED; font-weight: bold;">
+                    Novo Pedido
+                </div>
+                <div class="card-body">
+                    <form method="post" @onsubmit="Submit" @formname="starship-plain-form">
+                        <AntiforgeryToken />
+
+                        <div class="form-group">
+                            <label for="pedidoNome">Pedido Nome:</label>
+                            <InputText id="pedidoNome" class="form-control" @bind-Value="pedidoIten!.nome" placeholder="Digite o nome do pedido" />
+                        </div>
+                        <div class="form-group">
+                            <label for="pedidoData">Pedido Data:</label>
+                            <InputText id="pedidoData" class="form-control" @bind-Value="pedidoIten!.data" placeholder="Digite a data do pedido" />
+                        </div>
+                        <div class="form-group">
+                            <label for="itemNome">Item Nome:</label>
+                            <InputText id="itemNome" class="form-control" @bind-Value="iten!.nome" placeholder="Digite o nome do item" />
+                        </div>
+                        <div class="form-group">
+                            <label for="itemValor">Item Valor:</label>
+                            <InputNumber id="itemValor" class="form-control" @bind-Value="iten!.valor" placeholder="Digite o valor do item" />
+                        </div>
+                        <div class="form-group">
+                            <label for="itemQuantidade">Item Quantidade:</label>
+                            <InputNumber id="itemQuantidade" class="form-control" @bind-Value="iten!.quantidade" placeholder="Digite a quantidade do item" />
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna da Tabela -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header text-white" style="background-color: #17a2b8; font-weight: bold;">
+                    Pedidos
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Data</th>
+                                <th>Nome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (pedidos == null)
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center"><em>Carregando...</em></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var pedido in pedidos)
+                                {
+                                    <tr>
+                                        <td>@pedido.data</td>
+                                        <td>@pedido.nome</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Pedido[]? pedidos;
+    [SupplyParameterFromForm]
+    private Pedido? pedidoIten { get; set; }
+    [SupplyParameterFromForm]
+    private Iten? iten { get; set; }
+
+    private string url = "https://localhost:5001/orders";
+    private string antiforgeryToken="";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            pedidoIten ??= new();
+            iten ??= new();
+            var response = await Http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            pedidos = await response.Content.ReadFromJsonAsync<Pedido[]>();
+
+            var responseT = await Http.GetFromJsonAsync<TokenResponse>("https://localhost:5001/orders/getToken");
+            antiforgeryToken = responseT?.Token;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching pedidos: {ex.Message}");
+        }
+    }
+
+    protected async void Submit()
+    {
+        try
+        {
+            pedidoIten.itens = new List<Iten> { iten };
+            pedidoIten.itens[0] = iten;
+			Root root = new Root();
+			root.pedido = pedidoIten;
+            string jsonContent = System.Text.Json.JsonSerializer.Serialize(root);
+
+            // Cria o conteúdo da requisição
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            if (!string.IsNullOrEmpty(antiforgeryToken))
+            {
+                content.Headers.Add("X-CSRF-TOKEN", antiforgeryToken);
+            }
+            // Envia o POST request
+            var response = await Http.PostAsync("https://localhost:5001/orders", content);
+
+            // Garante que a requisição foi bem-sucedida
+            response.EnsureSuccessStatusCode();
+
+            // Lê a resposta como string
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            // Atualiza a lista de pedidos
+            await OnInitializedAsync();
+
+            // Limpa o formulário após o envio
+            pedidoIten = new Pedido { itens = new List<Iten> { new Iten() } };
+
+            Console.WriteLine("Resposta do servidor:");
+            Console.WriteLine(responseBody);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Erro ao enviar o pedido:");
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    public class Iten
+    {
+        public string nome { get; set; }
+        public int valor { get; set; }
+        public int quantidade { get; set; }
+    }
+
+    public class Pedido
+    {
+        public string nome { get; set; }
+        public string data { get; set; }
+        public List<Iten> itens { get; set; }
+    }
+
+    public class Root
+    {
+        public Pedido pedido { get; set; }
+    }
+    public class TokenResponse
+    {
+        public string Token { get; set; }
+    }
+
+}

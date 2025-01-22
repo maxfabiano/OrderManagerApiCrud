@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Database.Repository
 {
-    public record GetProdutoByIdQuery(int id) : IRequest<Produto>;
+    public record GetPedidoByIdQuery(int id) : IRequest<Pedido>;
 
-    public record GetAllProdutosQuery() : IRequest<IEnumerable<Produto>>;
+    public record GetAllPedidosQuery() : IRequest<IEnumerable<Pedido>>;
 }

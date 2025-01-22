@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 using Database.Domain;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CadastroDeProdutosNovo.Helpers
+namespace OrderManager.Helpers
 {
     public class ValidarDados
     {
-        public bool validarProduto(Produto produto)
+        public bool validarPedido(Pedido Pedido)
         {
             try
             {
-                if (produto.itens.Count < 1)
+                if (Pedido.itens.Count < 1)
                 {
-                    throw new Exception("Produto deve ter ao menos um item");
+                    throw new Exception("Pedido deve ter ao menos um item");
                 }
 
-                foreach (var item in produto.itens)
+                foreach (var item in Pedido.itens)
                 {
 
                     if (item.valor <= 0)
@@ -30,7 +30,7 @@ namespace CadastroDeProdutosNovo.Helpers
                     {
                         throw new Exception("Quantidade do item deve ser maior que zero");
                     }
-                    produto.totalValor(item.valor * item.quantidade);
+                    Pedido.totalValor(item.valor * item.quantidade);
                 }
                 return true;
             } catch (Exception e)
