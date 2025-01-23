@@ -26,7 +26,7 @@ public class PedidoController : ControllerBase
     }
     [HttpPost]
     [IgnoreAntiforgeryToken]
-    public async Task<IActionResult> CreatePedido([FromBody] createPedidoCommand command)
+    public async Task<IActionResult> CreatePedidom([FromBody] createPedidoCommand command)
     {
         try
         {
@@ -44,7 +44,7 @@ public class PedidoController : ControllerBase
         }
     }
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePedido(int id, [FromBody] updatePedidoCommand command)
+    public async Task<IActionResult> UpdatePedidoa(int id, [FromBody] updatePedidoCommand command)
     {
 
         try
@@ -68,7 +68,7 @@ public class PedidoController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeletePedido(int id)
+    public async Task<IActionResult> DeletePedidox(int id)
     {
         var success = await mediador.Send(new deletePedidoCommand(id));
         if (!success) { 
@@ -79,7 +79,7 @@ public class PedidoController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetPedidoById(int id, string? nome=null, string? data = null)
+    public async Task<IActionResult> GetPedidoByIdm(int id, string? nome=null, string? data = null)
     {
         IEnumerable<Pedido> pedido;
         if(id < 0)
@@ -110,7 +110,7 @@ public class PedidoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllPedidos()
+    public async Task<IActionResult> GetAllPedidosax()
     {
         var pedidos = await mediador.Send(new getAllPedidos());
 

@@ -35,7 +35,7 @@ namespace OrderManagerUnityTeste
             Pedido.setId(1);
             _mediatorMock.Setup(x => x.Send(It.IsAny<createPedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Pedido);
-            var result = await pedidoAi.CreatePedido(command);
+            var result = await pedidoAi.CreatePedidom(command);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(Pedido, okResult.Value);
@@ -57,7 +57,7 @@ namespace OrderManagerUnityTeste
             _mediatorMock.Setup(x => x.Send(It.IsAny<updatePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Pedido)null);
 
-            var result = await pedidoAi.UpdatePedido(id, command);
+            var result = await pedidoAi.UpdatePedidoa(id, command);
 
             Assert.IsType<NotFoundResult>(result);
         }
@@ -71,7 +71,7 @@ namespace OrderManagerUnityTeste
             _mediatorMock.Setup(x => x.Send(It.IsAny<deletePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(true);
 
-            var result = await pedidoAi.DeletePedido(id);
+            var result = await pedidoAi.DeletePedidox(id);
             Assert.IsType<NoContentResult>(result);
         }
 
@@ -81,7 +81,7 @@ namespace OrderManagerUnityTeste
             var id = 1;
             _mediatorMock.Setup(x => x.Send(It.IsAny<deletePedidoCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            var result = await pedidoAi.DeletePedido(id);
+            var result = await pedidoAi.DeletePedidox(id);
 
             Assert.IsType<NotFoundResult>(result);
         }
@@ -97,7 +97,7 @@ namespace OrderManagerUnityTeste
             _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(pedido);
 
-            var result = await pedidoAi.GetPedidoById(id);
+            var result = await pedidoAi.GetPedidoByIdm(id);
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(pedido, okResult.Value);
         }
@@ -109,7 +109,7 @@ namespace OrderManagerUnityTeste
             _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Pedido)null);
 
-            var result = await pedidoAi.GetPedidoById(id);
+            var result = await pedidoAi.GetPedidoByIdm(id);
 
             Assert.IsType<NotFoundResult>(result);
         }
@@ -127,7 +127,7 @@ namespace OrderManagerUnityTeste
 
             _mediatorMock.Setup(x => x.Send(It.IsAny<getAllPedidos>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(pedidos);
-            var result = await pedidoAi.GetAllPedidos();
+            var result = await pedidoAi.GetAllPedidosax();
             var okResult = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(pedidos, okResult.Value);
         }
