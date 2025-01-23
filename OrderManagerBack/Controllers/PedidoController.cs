@@ -82,6 +82,10 @@ public class PedidoController : ControllerBase
     public async Task<IActionResult> GetPedidoById(int id, string? nome=null, string? data = null)
     {
         IEnumerable<Pedido> pedido;
+        if(id < 0)
+        {
+            return BadRequest();
+        }
 
         if (nome != null) {
             pedido = await mediador.Send(new getPedidoId(id,nome));
