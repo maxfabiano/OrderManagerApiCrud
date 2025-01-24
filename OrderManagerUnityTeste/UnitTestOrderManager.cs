@@ -18,6 +18,7 @@ namespace OrderManagerUnityTeste
 
         public PedidoControllerTest()
         {
+            antFo = new Mock<IAntiforgery>();
             _mediatorMock = new Mock<IMediator>();
             pedidoAi = new PedidoController(_mediatorMock.Object, antFo.Object); 
         }
@@ -89,25 +90,28 @@ namespace OrderManagerUnityTeste
         [Fact]
         public async Task pegarPedidoInvalido()
         {
+            var pedidos = new List<Pedido>();
+
             var id = 1;
             var pedido = new Pedido ();
             pedido.nome ="Pedido Teste";
             pedido.setId(id);
+            pedidos.Add(pedido);
 
-            _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pedido);
+            _mediatorMock.Setup(x => x.Send(It.IsAny<getPedidoId>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(pedidos);
 
             var result = await pedidoAi.GetPedidoByIdm(id);
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(pedido, okResult.Value);
+            Assert.Equal(pedidos, okResult.Value);
         }
 
         [Fact]
         public async Task pegarPedidoIdInvalido()
         {
             var id = 1;
-            _mediatorMock.Setup(x => x.Send(It.IsAny<getPdidoId>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Pedido)null);
+            _mediatorMock.Setup(x => x.Send(It.IsAny<getPedidoId>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((List<Pedido>)null);
 
             var result = await pedidoAi.GetPedidoByIdm(id);
 

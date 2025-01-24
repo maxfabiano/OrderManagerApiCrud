@@ -88,12 +88,12 @@ namespace Database.Repository
                     {
                         var idPedido = await connection.QuerySingleAsync<int>(queyPedido, new
                         {
-                            comando.Pedido.nome,
-                            comando.Pedido.data,
-                            comando.Pedido.valorTotal
+                            comando.pedido.nome,
+                            comando.pedido.data,
+                            comando.pedido.valorTotal
                         }, transaction);
 
-                        foreach (var item in comando.Pedido.itens)
+                        foreach (var item in comando.pedido.itens)
                         {
                             await connection.ExecuteAsync(queryIten, new
                             {
@@ -109,9 +109,9 @@ namespace Database.Repository
                         return new Pedido
                         {
 
-                            nome = comando.Pedido.nome,
-                            data = comando.Pedido.data,
-                            itens = comando.Pedido.itens
+                            nome = comando.pedido.nome,
+                            data = comando.pedido.data,
+                            itens = comando.pedido.itens
                         };
                     }
                     catch
@@ -146,16 +146,16 @@ namespace Database.Repository
                         var rowsAffected = await connection.ExecuteAsync(PedidoSql, new
                         {
 
-                            comando.Pedido.nome,
-                            comando.Pedido.data,
-                            comando.Pedido.valorTotal,
-                            id = comando.Pedido.id
+                            comando.pedido.nome,
+                            comando.pedido.data,
+                            comando.pedido.valorTotal,
+                            id = comando.pedido.id
                         }, transaction);
                         if (rowsAffected == 0) return null;
 
 
-                        await connection.ExecuteAsync(deleteitensSql, new { PedidoId = comando.Pedido.id }, transaction);
-                        foreach (var item in comando.Pedido.itens)
+                        await connection.ExecuteAsync(deleteitensSql, new { PedidoId = comando.pedido.id }, transaction);
+                        foreach (var item in comando.pedido.itens)
                         {
 
                             await connection.ExecuteAsync(itensSql, new
@@ -164,15 +164,15 @@ namespace Database.Repository
                                 item.nome,
                                 item.valor,
                                 item.quantidade,
-                                PedidoId = comando.Pedido.id
+                                PedidoId = comando.pedido.id
                             }, transaction);
                         }
                         transaction.Commit();
                         return new Pedido
                         {
-                            nome = comando.Pedido.nome,
-                            data = comando.Pedido.data,
-                            itens = comando.Pedido.itens
+                            nome = comando.pedido.nome,
+                            data = comando.pedido.data,
+                            itens = comando.pedido.itens
                         };
                     }
                     catch

@@ -32,7 +32,7 @@ public class PedidoController : ControllerBase
         {
 
             ValidarDados validarDados = new ValidarDados();
-            validarDados.validarPedido(command.Pedido);
+            validarDados.validarPedido(command.pedido);
 
             var pedidos = await mediador.Send(command);
             return Ok(pedidos);
@@ -51,8 +51,8 @@ public class PedidoController : ControllerBase
         {
 
         ValidarDados validarDados = new ValidarDados();
-        validarDados.validarPedido(command.Pedido);
-        command.Pedido.setId(id);
+        validarDados.validarPedido(command.pedido);
+        command.pedido.setId(id);
 
         var pedido = await mediador.Send(command);
 

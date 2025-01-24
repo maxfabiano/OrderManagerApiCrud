@@ -33,7 +33,7 @@ namespace Database.Domain
         public decimal valor { get; set; }
         public int quantidade { get; set; }
 
-        public int PedidoId { get; private set; }
+        public int pedidoId { get; private set; }
 
     }
 
